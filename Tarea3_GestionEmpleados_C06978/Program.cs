@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using Tarea3_GestionEmpleados_C06978.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
