@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Tarea3_GestionEmpleados_C06978.Models.Empleado>
+
+@{
+    ViewData["Title"] = "Listado de Empleados";
+    int totalRegistros = ViewBag.TotalRegistros;
+    int paginaActual = ViewBag.PaginaActual;
+    int tamanoPagina = ViewBag.TamanoPagina;
+    string busqueda = ViewBag.BusquedaActual;
+    int totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a asp-action="Crear" class="btn btn-primary">Agregar Nuevo Empleado</a>
+    </div>
+    <div class="col-md-6 text-end">
+        <form asp-action="Index" method="get" class="d-inline-flex">
+            <input type="text" name="buscar" value="@busqueda" class="form-control me-2" placeholder="Nombre o Depto..." />
+            <button type="submit" class="btn btn-outline-success">Buscar</button>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre Completo</th>
+            <th>Departamento</th>
+            <th>Salario</th>
+            <th>Fecha Ingreso</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NombreCompleto</td>
+                <td>@item.Departamento</td>
+                <td>@item.Salario.ToString("C")</td>
+                <td>@item.FechaIngreso.ToShortDateString()</td>
+                <td>@(item.Activo ? "Activo" : "Inactivo")</td>
+                <td>
+                    <a class="btn btn-sm btn-info">Editar</a>
+                    <a class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Lógica de Paginación -->
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= totalPaginas; i++)
+        {
+            <li class="page-item @(i == paginaActual ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@busqueda">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

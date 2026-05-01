@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; 
 
 namespace Tarea3_GestionEmpleados_C06978.Models
 {
@@ -20,6 +21,8 @@ namespace Tarea3_GestionEmpleados_C06978.Models
 
         [Required(ErrorMessage = "El salario es obligatorio")]
         [Range(400000, 10000000, ErrorMessage = "El salario debe estar entre 400,000 y 10,000,000")]
+        // Especificamos que en la BD use 18 dígitos en total y 2 decimales
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Salario { get; set; }
 
         [Display(Name = "Fecha de Ingreso")]
