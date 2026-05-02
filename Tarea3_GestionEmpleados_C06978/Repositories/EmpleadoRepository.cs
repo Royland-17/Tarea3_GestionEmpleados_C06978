@@ -10,6 +10,7 @@ namespace Tarea3_GestionEmpleados_C06978.Repositories
         public EmpleadoRepository(AppDbContext context) { _context = context; }
 
         public async Task<IEnumerable<Empleado>> ObtenerTodos() => await _context.Empleados.ToListAsync();
+
         public async Task<Empleado?> ObtenerPorId(int id) => await _context.Empleados.FindAsync(id);
 
         public async Task<IEnumerable<Empleado>> ObtenerPaginado(int pagina, int tamano, string? busqueda)
@@ -17,9 +18,14 @@ namespace Tarea3_GestionEmpleados_C06978.Repositories
             var query = _context.Empleados.AsQueryable();
             if (!string.IsNullOrEmpty(busqueda))
             {
-                query = query.Where(e => e.Nombre.Contains(busqueda) || e.Apellidos.Contains(busqueda) || e.Departamento.Contains(busqueda));
+                query = query.Where(e => e.Nombre.Contains(busqueda) ||
+                                       e.Apellidos.Contains(busqueda) ||
+                                       e.Departamento.Contains(busqueda));
             }
-            return await query.Skip((pagina - 1) * tamano).Take(tamano).ToListAsync(); // Lógica de paginación
+            return await query.OrderBy(e => e.Id)
+                              .Skip((pagina - 1) * tamano)
+                              .Take(tamano)
+                              .ToListAsync();
         }
 
         public async Task<int> ContarTotal(string? busqueda)
@@ -27,16 +33,37 @@ namespace Tarea3_GestionEmpleados_C06978.Repositories
             var query = _context.Empleados.AsQueryable();
             if (!string.IsNullOrEmpty(busqueda))
             {
-                query = query.Where(e => e.Nombre.Contains(busqueda) || e.Apellidos.Contains(busqueda) || e.Departamento.Contains(busqueda));
+                query = query.Where(e => e.Nombre.Contains(busqueda) ||
+                                       e.Apellidos.Contains(busqueda) ||
+                                       e.Departamento.Contains(busqueda));
             }
             return await query.CountAsync();
         }
 
         public async Task<IEnumerable<Empleado>> BuscarPorNombreODepartamento(string termino) =>
-            await _context.Empleados.Where(e => e.Nombre.Contains(termino) || e.Departamento.Contains(termino)).ToListAsync();
+            await _context.Empleados.Where(e => e.Nombre.Contains(termino) ||
+                                               e.Departamento.Contains(termino)).ToListAsync();
 
-        public async Task Agregar(Empleado empleado) { _context.Empleados.Add(empleado); await _context.SaveChangesAsync(); }
-        public async Task Actualizar(Empleado empleado) { _context.Entry(empleado).State = EntityState.Modified; await _context.SaveChangesAsync(); }
-        public async Task Eliminar(int id) { /* Lógica de eliminación física si fuera necesaria */ }
+        public async Task Agregar(Empleado empleado)
+        {
+            _context.Empleados.Add(empleado);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Actualizar(Empleado empleado)
+        {
+            _context.Update(empleado);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Eliminar(int id)
+        {
+            var empleado = await _context.Empleados.FindAsync(id);
+            if (empleado != null)
+            {
+                _context.Empleados.Remove(empleado);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

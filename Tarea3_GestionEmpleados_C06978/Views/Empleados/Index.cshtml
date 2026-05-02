@@ -2,64 +2,92 @@
 
 @{
     ViewData["Title"] = "Listado de Empleados";
-    int totalRegistros = ViewBag.TotalRegistros;
-    int paginaActual = ViewBag.PaginaActual;
-    int tamanoPagina = ViewBag.TamanoPagina;
-    string busqueda = ViewBag.BusquedaActual;
+    int totalRegistros = ViewBag.TotalRegistros ?? 0;
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int tamanoPagina = ViewBag.TamanoPagina ?? 5;
+    string busqueda = ViewBag.BusquedaActual ?? "";
     int totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <a asp-action="Crear" class="btn btn-primary">Agregar Nuevo Empleado</a>
+    <div class="row mb-3 mt-4">
+        <div class="col-md-6">
+            <a asp-action="Crear" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Agregar Nuevo Empleado
+            </a>
+        </div>
+        <div class="col-md-6 text-end">
+            <form asp-action="Index" method="get" class="d-inline-flex">
+                <input type="text" name="buscar" value="@busqueda" class="form-control me-2" placeholder="Buscar por nombre o depto..." />
+                <button type="submit" class="btn btn-outline-success">Buscar</button>
+            </form>
+        </div>
     </div>
-    <div class="col-md-6 text-end">
-        <form asp-action="Index" method="get" class="d-inline-flex">
-            <input type="text" name="buscar" value="@busqueda" class="form-control me-2" placeholder="Nombre o Depto..." />
-            <button type="submit" class="btn btn-outline-success">Buscar</button>
-        </form>
-    </div>
-</div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Nombre Completo</th>
-            <th>Departamento</th>
-            <th>Salario</th>
-            <th>Fecha Ingreso</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
             <tr>
-                <td>@item.NombreCompleto</td>
-                <td>@item.Departamento</td>
-                <td>@item.Salario.ToString("C")</td>
-                <td>@item.FechaIngreso.ToShortDateString()</td>
-                <td>@(item.Activo ? "Activo" : "Inactivo")</td>
-                <td>
-                    <a class="btn btn-sm btn-info">Editar</a>
-                    <a class="btn btn-sm btn-danger">Eliminar</a>
-                </td>
+                <th>Nombre Completo</th>
+                <th>Departamento</th>
+                <th>Salario</th>
+                <th>Fecha Ingreso</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.NombreCompleto</td>
+                        <td>@item.Departamento</td>
+                        @* Símbolo de moneda *@
+                        <td>$@item.Salario.ToString("N2")</td>
+                        <td>@item.FechaIngreso.ToShortDateString()</td>
+                        <td>
+                            <span class="badge @(item.Activo ? "bg-success" : "bg-secondary")">
+                                @(item.Activo ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                @* Botón Editar *@
+                                <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Editar</a>
+                                
+                                @* Botón Eliminar *@
+                                <form asp-action="Eliminar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Desea eliminar a @item.NombreCompleto?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No se encontraron empleados registrados.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<!-- Lógica de Paginación -->
-<nav>
-    <ul class="pagination">
-        @for (int i = 1; i <= totalPaginas; i++)
-        {
-            <li class="page-item @(i == paginaActual ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@busqueda">@i</a>
-            </li>
-        }
-    </ul>
-</nav>
+    @* Lógica de Paginación *@
+    @if (totalPaginas > 1)
+    {
+        <nav aria-label="Navegación de empleados">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= totalPaginas; i++)
+                {
+                    <li class="page-item @(i == paginaActual ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@busqueda">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
