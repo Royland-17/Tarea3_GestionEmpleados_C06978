@@ -15,9 +15,8 @@ La funcionalidad de paginación se implementó en el controlador de Empleados ut
 - Se utiliza `.Skip()` y `.Take()` en LINQ para recuperar solo los registros correspondientes a la vista actual, optimizando el rendimiento del servidor.
 
 ## Ejemplo de URL con Búsqueda y Paginación
-Para buscar empleados por nombre y navegar a una página específica, use el siguiente formato:
-`https://localhost:XXXX/Empleados/Index?searchTerm=Juan&pageNumber=2`
-*(Reemplazar XXXX por el puerto local de ejecución)*
+Para buscar empleados por nombre y navegar a una página específica, use el siguiente link:
+https://localhost:7278/
 
 ## Script SQL
 El script para la creación manual de la base de datos se encuentra en la carpeta `/ScriptsSQL`.
